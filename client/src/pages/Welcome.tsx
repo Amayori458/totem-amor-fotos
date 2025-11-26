@@ -23,11 +23,11 @@ export default function Welcome() {
         </div>
 
         <h1 className="text-[#333333] tracking-tight text-[32px] sm:text-4xl font-bold leading-tight px-4 text-center pb-3 pt-6">
-          Your memories, revealed with love.
+          Suas Fotos Reveladas com amor
         </h1>
         
         <p className="text-gray-500 text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          Touch the screen to print your memories
+          Toque para revelar sua histora
         </p>
 
         <div className="flex px-4 py-8 justify-center w-full">
