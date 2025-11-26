@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, sessions, InsertSession, Session, photos, InsertPhoto, Photo, orders, InsertOrder, Order } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,126 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Session management functions
+export async function createSession(sessionData: InsertSession): Promise<Session> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(sessions).values(sessionData);
+  const insertedId = Number(result[0].insertId);
+  
+  const newSession = await db.select().from(sessions).where(eq(sessions.id, insertedId)).limit(1);
+  if (!newSession[0]) {
+    throw new Error("Failed to retrieve created session");
+  }
+  
+  return newSession[0];
+}
+
+export async function getSessionBySessionId(sessionId: string): Promise<Session | undefined> {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db.select().from(sessions).where(eq(sessions.sessionId, sessionId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateSessionStatus(sessionId: string, status: "active" | "completed" | "expired"): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(sessions).set({ status }).where(eq(sessions.sessionId, sessionId));
+}
+
+// Photo management functions
+export async function createPhoto(photoData: InsertPhoto): Promise<Photo> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(photos).values(photoData);
+  const insertedId = Number(result[0].insertId);
+  
+  const newPhoto = await db.select().from(photos).where(eq(photos.id, insertedId)).limit(1);
+  if (!newPhoto[0]) {
+    throw new Error("Failed to retrieve created photo");
+  }
+  
+  return newPhoto[0];
+}
+
+export async function getPhotosBySessionId(sessionId: string): Promise<Photo[]> {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(photos).where(eq(photos.sessionId, sessionId));
+}
+
+export async function updatePhotoSelection(photoId: number, selected: number, format?: "10x15" | "15x21"): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const updateData: Partial<Photo> = { selected };
+  if (format) {
+    updateData.format = format;
+  }
+
+  await db.update(photos).set(updateData).where(eq(photos.id, photoId));
+}
+
+// Order management functions
+export async function createOrder(orderData: InsertOrder): Promise<Order> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(orders).values(orderData);
+  const insertedId = Number(result[0].insertId);
+  
+  const newOrder = await db.select().from(orders).where(eq(orders.id, insertedId)).limit(1);
+  if (!newOrder[0]) {
+    throw new Error("Failed to retrieve created order");
+  }
+  
+  return newOrder[0];
+}
+
+export async function getOrderByOrderNumber(orderNumber: string): Promise<Order | undefined> {
+  const db = await getDb();
+  if (!db) {
+    return undefined;
+  }
+
+  const result = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateOrderStatus(
+  orderNumber: string,
+  status: "pending" | "processing" | "completed" | "failed",
+  completedAt?: Date
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const updateData: Partial<Order> = { status };
+  if (completedAt) {
+    updateData.completedAt = completedAt;
+  }
+
+  await db.update(orders).set(updateData).where(eq(orders.orderNumber, orderNumber));
+}
