@@ -63,7 +63,7 @@ export default function MobileUpload() {
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">Amor por Fotos</h1>
-          <p className="text-gray-600">Envie suas fotos para o totem</p>
+          <p className="text-gray-600">Envie suas Fotos para o Totem</p>
           <p className="text-sm text-gray-500 mt-2">Sessão: {sessionId}</p>
         </div>
 
@@ -73,7 +73,7 @@ export default function MobileUpload() {
             className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
           >
             <Upload className="w-12 h-12 text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600">Toque para selecionar fotos</p>
+            <p className="text-sm text-gray-600">Toque para Selecionar Fotos</p>
             <p className="text-xs text-gray-500 mt-1">JPG, PNG ou HEIC</p>
           </label>
           <input
@@ -88,7 +88,7 @@ export default function MobileUpload() {
 
         {selectedFiles.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-            <h3 className="font-bold mb-3">Fotos selecionadas ({selectedFiles.length})</h3>
+            <h3 className="font-bold mb-3">Fotos Selecionadas ({selectedFiles.length})</h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {selectedFiles.map((file, index) => (
                 <div
@@ -113,7 +113,7 @@ export default function MobileUpload() {
           disabled={selectedFiles.length === 0 || uploading}
           className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
         >
-          {uploading ? "Enviando..." : `Enviar ${selectedFiles.length} foto(s)`}
+          {uploading ? "Enviando..." : `Enviar ${selectedFiles.length} Foto${selectedFiles.length > 1 ? 's' : ''}`}
         </Button>
 
         {uploadStatus === "success" && (
@@ -122,7 +122,7 @@ export default function MobileUpload() {
             <div>
               <p className="font-bold text-green-800">Sucesso!</p>
               <p className="text-sm text-green-700">
-                {uploadedCount} foto(s) enviada(s) para o totem.
+                {uploadedCount} foto${uploadedCount > 1 ? 's' : ''} enviada${uploadedCount > 1 ? 's' : ''} para o totem.
               </p>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function MobileUpload() {
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
             <XCircle className="w-6 h-6 text-red-600" />
             <div>
-              <p className="font-bold text-red-800">Erro no envio</p>
+              <p className="font-bold text-red-800">Erro no Envio</p>
               <p className="text-sm text-red-700">
                 Tente novamente ou entre em contato com o atendente.
               </p>

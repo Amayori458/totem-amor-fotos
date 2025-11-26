@@ -43,3 +43,14 @@
 - [ ] Testar fluxo completo de upload e seleção
 - [ ] Criar checkpoint do projeto
 - [ ] Documentar instruções de instalação e configuração
+
+## Tradução para Português
+- [x] Traduzir tela inicial (Welcome)
+- [x] Traduzir tela do QR Code
+- [x] Traduzir tela de upload mobile
+- [x] Traduzir tela de seleção de fotos
+- [x] Traduzir tela de escolha de formato
+- [x] Traduzir tela de processamento
+- [x] Traduzir tela final
+- [x] Corrigir erro de digitação "histora" → "história"
+- [x] Traduzir botão "Touch to Begin" → "Toque para Começar"

@@ -95,10 +95,10 @@ export default function FormatSelection() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col gap-2 mb-8">
             <p className="text-4xl font-black leading-tight tracking-[-0.033em] text-[#333333]">
-              Choose Print Format
+              Escolha o Formato de Impressão
             </p>
             <p className="text-base font-normal leading-normal text-gray-600">
-              Select the size for your {selectedPhotos.length} photo(s).
+              Selecione o tamanho para {selectedPhotos.length === 1 ? 'sua foto' : `suas ${selectedPhotos.length} fotos`}.
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export default function FormatSelection() {
                 </div>
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-[#333333]">10×15 cm</h3>
-                  <p className="text-sm text-gray-600 mt-1">Standard photo size</p>
+                  <p className="text-sm text-gray-600 mt-1">Tamanho padrão</p>
                 </div>
                 {selectedFormat === "10x15" && (
                   <div className="absolute top-4 right-4 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
@@ -153,7 +153,7 @@ export default function FormatSelection() {
                 </div>
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-[#333333]">15×21 cm</h3>
-                  <p className="text-sm text-gray-600 mt-1">Larger photo size</p>
+                  <p className="text-sm text-gray-600 mt-1">Tamanho maior</p>
                 </div>
                 {selectedFormat === "15x21" && (
                   <div className="absolute top-4 right-4 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
@@ -182,7 +182,7 @@ export default function FormatSelection() {
               disabled={processing}
               className="w-full max-w-md h-16 rounded-full bg-accent hover:bg-accent/90 text-white text-lg font-bold disabled:bg-gray-300 disabled:text-gray-500"
             >
-              {processing ? "Processing..." : "Confirm Print"}
+              {processing ? "Processando..." : "Confirmar Impressão"}
             </Button>
           </div>
         </div>

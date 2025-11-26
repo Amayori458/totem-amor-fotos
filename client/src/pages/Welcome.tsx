@@ -23,11 +23,11 @@ export default function Welcome() {
         </div>
 
         <h1 className="text-[#333333] tracking-tight text-[32px] sm:text-4xl font-bold leading-tight px-4 text-center pb-3 pt-6">
-          Suas Fotos Reveladas com amor
+          Suas Fotos Reveladas com Amor
         </h1>
         
         <p className="text-gray-500 text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          Toque para revelar sua histora
+          Toque para revelar sua história
         </p>
 
         <div className="flex px-4 py-8 justify-center w-full">
@@ -35,7 +35,7 @@ export default function Welcome() {
             onClick={handleStart}
             className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
           >
-            Touch to Begin
+            Toque para Começar
           </Button>
         </div>
       </div>

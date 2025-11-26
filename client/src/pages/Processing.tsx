@@ -76,25 +76,25 @@ export default function Processing() {
           </div>
 
           <h1 className="text-[#333333] tracking-tight text-[32px] sm:text-4xl font-bold leading-tight px-4 text-center pb-3">
-            Your photos are ready!
+            Suas Fotos Estão Prontas!
           </h1>
 
           <p className="text-gray-600 text-lg font-normal leading-normal pb-3 pt-1 px-4 text-center mb-4">
-            Please collect them at the counter.
+            Por favor, retire-as no balcão.
           </p>
 
-          <p className="text-sm text-gray-500 mb-2">Order: {orderNumber}</p>
+          <p className="text-sm text-gray-500 mb-2">Pedido: {orderNumber}</p>
 
           <div className="flex px-4 py-8 justify-center w-full">
             <Button
               onClick={() => setLocation("/")}
               className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
             >
-              Back to Start
+              Voltar ao Início
             </Button>
           </div>
 
-          <p className="text-sm text-gray-500">Returning to start in {countdown}s...</p>
+          <p className="text-sm text-gray-500">Retornando ao início em {countdown}s...</p>
         </div>
       </div>
     );
@@ -109,11 +109,11 @@ export default function Processing() {
         </div>
 
         <h1 className="text-[#333333] tracking-tight text-[32px] sm:text-4xl font-bold leading-tight px-4 text-center pb-3 pt-6">
-          Processing your order...
+          Processando seu Pedido...
         </h1>
 
         <p className="text-gray-600 text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          Please wait while we prepare your photos.
+          Por favor, aguarde enquanto preparamos suas fotos.
         </p>
 
         <div className="w-full max-w-md px-4 py-8">
@@ -126,7 +126,7 @@ export default function Processing() {
           <p className="text-lg font-bold text-primary">{progress}%</p>
         </div>
 
-        <p className="text-sm text-gray-500">Order: {orderNumber}</p>
+        <p className="text-sm text-gray-500">Pedido: {orderNumber}</p>
       </div>
     </div>
   );

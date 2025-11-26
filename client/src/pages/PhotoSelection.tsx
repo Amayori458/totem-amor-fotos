@@ -68,7 +68,7 @@ export default function PhotoSelection() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-lg text-gray-600">Carregando fotos...</p>
+        <p className="text-lg text-gray-600">Carregando Fotos...</p>
       </div>
     );
   }
@@ -104,10 +104,10 @@ export default function PhotoSelection() {
             <div className="flex flex-wrap items-end justify-between gap-4 py-8">
               <div className="flex flex-col gap-2">
                 <p className="text-4xl font-black leading-tight tracking-[-0.033em] text-[#333333]">
-                  Select Your Photos
+                  Selecione suas Fotos
                 </p>
                 <p className="text-base font-normal leading-normal text-gray-600">
-                  Choose the memories you want to print.
+                  Escolha as memórias que você quer revelar.
                 </p>
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function PhotoSelection() {
 
             <div className="flex items-center justify-center py-10">
               <p className="text-lg font-bold text-gray-600">
-                {selectedPhotos.size} photos selected
+                {selectedPhotos.size} foto${selectedPhotos.size !== 1 ? 's' : ''} selecionada${selectedPhotos.size !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
@@ -154,30 +154,30 @@ export default function PhotoSelection() {
 
         <aside className="hidden lg:flex w-80 shrink-0 flex-col border-l border-solid border-gray-200 bg-white">
           <div className="flex flex-col p-6 gap-6">
-            <h3 className="text-lg font-bold text-[#333333]">Selection Tools</h3>
+            <h3 className="text-lg font-bold text-[#333333]">Ferramentas de Seleção</h3>
             <Button
               onClick={selectAll}
               className="w-full h-14 rounded-full bg-primary/20 hover:bg-primary/30 text-[#333333] font-bold"
             >
-              Select All
+              Selecionar Todas
             </Button>
             <Button
               onClick={deselectAll}
               className="w-full h-14 rounded-full bg-primary/20 hover:bg-primary/30 text-[#333333] font-bold"
             >
-              Deselect All
+              Remover Todas
             </Button>
             <div className="mt-auto">
               <p className="text-center text-2xl font-bold mb-4 text-[#333333]">
                 {selectedPhotos.size}
               </p>
-              <p className="text-center text-sm text-gray-500 mb-6">photos selected</p>
+              <p className="text-center text-sm text-gray-500 mb-6">foto${selectedPhotos.size !== 1 ? 's' : ''} selecionada${selectedPhotos.size !== 1 ? 's' : ''}</p>
               <Button
                 onClick={handleContinue}
                 disabled={selectedPhotos.size === 0}
                 className="w-full h-14 rounded-full bg-accent hover:bg-accent/90 text-white font-bold disabled:bg-gray-300 disabled:text-gray-500"
               >
-                Continue →
+                Continuar →
               </Button>
             </div>
           </div>
@@ -190,13 +190,13 @@ export default function PhotoSelection() {
             onClick={selectAll}
             className="flex-1 h-12 rounded-full bg-primary/20 hover:bg-primary/30 text-[#333333] font-bold text-sm"
           >
-            Select All
+            Selecionar Todas
           </Button>
           <Button
             onClick={deselectAll}
             className="flex-1 h-12 rounded-full bg-primary/20 hover:bg-primary/30 text-[#333333] font-bold text-sm"
           >
-            Deselect All
+            Remover Todas
           </Button>
         </div>
         <Button
@@ -204,7 +204,7 @@ export default function PhotoSelection() {
           disabled={selectedPhotos.size === 0}
           className="w-full h-14 rounded-full bg-accent hover:bg-accent/90 text-white font-bold disabled:bg-gray-300 disabled:text-gray-500"
         >
-          Continue ({selectedPhotos.size}) →
+          Continuar ({selectedPhotos.size}) →
         </Button>
       </div>
     </div>

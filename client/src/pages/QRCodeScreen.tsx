@@ -50,7 +50,7 @@ export default function QRCodeScreen() {
       <div className="layout-container flex h-full max-w-4xl grow flex-col items-center">
         <div className="flex w-full flex-col items-center justify-center px-4 py-8 text-center sm:py-12">
           <h1 className="text-[#333333] text-[32px] font-bold leading-tight tracking-tight sm:text-4xl">
-            Revele suas memórias favoritas
+            Revele suas Memórias Favoritas
           </h1>
           <p className="mt-2 text-primary text-base font-normal leading-normal">
             Siga os passos abaixo para enviar suas fotos e eternizar seus momentos.
@@ -67,7 +67,7 @@ export default function QRCodeScreen() {
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-normal leading-normal text-primary">Passo 1</p>
                   <h2 className="text-base font-bold leading-tight text-[#333333]">
-                    Aponte a câmera do seu celular
+                    Aponte a Câmera do seu Celular
                   </h2>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export default function QRCodeScreen() {
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-normal leading-normal text-primary">Passo 2</p>
                   <h2 className="text-base font-bold leading-tight text-[#333333]">
-                    Selecione e envie suas fotos
+                    Selecione e Envie suas Fotos
                   </h2>
                 </div>
               </div>
@@ -89,18 +89,18 @@ export default function QRCodeScreen() {
           <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 md:w-1/2 md:max-w-none md:px-0">
             <div className="flex w-full flex-col items-center justify-center rounded-xl bg-white p-6 shadow-sm">
               <p className="mb-4 text-center text-lg font-bold text-[#333333]">
-                Escaneie para começar
+                Escaneie para Começar
               </p>
               <div className="aspect-square w-full max-w-[280px] rounded-lg bg-white p-4">
                 {uploadUrl ? (
                   <QRCode value={uploadUrl} size={256} className="w-full h-full" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-lg">
-                    <p className="text-gray-500">Gerando QR Code...</p>
+                    <p className="text-gray-500">Gerando Código QR...</p>
                   </div>
                 )}
               </div>
-              <p className="mt-4 text-center text-sm text-primary">Sessão ID: {sessionId || "..."}</p>
+              <p className="mt-4 text-center text-sm text-primary">ID da Sessão: {sessionId || "..."}</p>
             </div>
 
             <div className="flex w-full flex-col items-stretch gap-3">
@@ -110,14 +110,14 @@ export default function QRCodeScreen() {
                 className="h-14 rounded-full bg-primary text-white font-bold hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
               >
                 {photosReceived === 0
-                  ? "Aguardando fotos..."
-                  : `Continuar com ${photosReceived} fotos`}
+                  ? "Aguardando Fotos..."
+                  : `Continuar com ${photosReceived} Foto${photosReceived > 1 ? 's' : ''}`}
               </Button>
               <Button
                 variant="ghost"
                 className="h-14 rounded-full text-primary font-bold hover:bg-gray-100"
               >
-                Precisa de ajuda?
+                Precisa de Ajuda?
               </Button>
             </div>
 
