@@ -54,3 +54,6 @@
 - [x] Traduzir tela final
 - [x] Corrigir erro de digitação "histora" → "história"
 - [x] Traduzir botão "Touch to Begin" → "Toque para Começar"
+
+## Correções de Bugs
+- [x] Corrigir erro "Cannot update a component while rendering" no Processing.tsx

@@ -29,21 +29,20 @@ export default function Processing() {
   }, []);
 
   useEffect(() => {
-    if (showFinal) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setLocation("/");
-            return 0;
-          }
-          return prev - 1;
-        });
+    if (showFinal && countdown === 0) {
+      setLocation("/");
+    }
+  }, [showFinal, countdown, setLocation]);
+
+  useEffect(() => {
+    if (showFinal && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1);
       }, 1000);
 
-      return () => clearInterval(timer);
+      return () => clearTimeout(timer);
     }
-  }, [showFinal, setLocation]);
+  }, [showFinal, countdown]);
 
   if (showFinal) {
     return (
