@@ -1,12 +1,23 @@
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
 
 export default function Welcome() {
   const [, setLocation] = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const createSession = trpc.totem.createSession.useMutation();
 
-  const handleStart = () => {
-    setLocation("/qrcode");
+  const handleStart = async () => {
+    try {
+      setIsLoading(true);
+      const result = await createSession.mutateAsync();
+      setLocation(`/qrcode/${result.sessionId}`);
+    } catch (error) {
+      console.error("Erro ao criar sessão:", error);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -33,9 +44,10 @@ export default function Welcome() {
         <div className="flex px-4 py-8 justify-center w-full">
           <Button
             onClick={handleStart}
-            className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
+            disabled={isLoading}
+            className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full disabled:opacity-50"
           >
-            Toque para Começar
+            {isLoading ? "Carregando..." : "Toque para Começar"}
           </Button>
         </div>
       </div>
