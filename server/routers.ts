@@ -12,6 +12,9 @@ import {
   updatePhotoSelection,
   createOrder,
 } from "./db";
+import { getPrinters, testPrinter, printImageBuffer } from "./printerManager";
+import { resizeForPrint } from "./imageConverter";
+import { storageGet } from "./storage";
 
 export const appRouter = router({
   system: systemRouter,
@@ -110,6 +113,85 @@ export const appRouter = router({
           orderNumber: order.orderNumber,
           photoCount: order.photoCount,
         };
+      }),
+  }),
+
+  printer: router({
+    // Obtém lista de impressoras disponíveis
+    getPrinters: publicProcedure.query(async () => {
+      try {
+        const printers = await getPrinters();
+        return {
+          success: true,
+          printers,
+        };
+      } catch (error) {
+        console.error("[Printer Router] Erro ao obter impressoras:", error);
+        return {
+          success: false,
+          printers: [],
+          error: "Falha ao obter lista de impressoras",
+        };
+      }
+    }),
+
+    // Testa conexão com impressora
+    testPrinter: publicProcedure
+      .input(z.object({ printerName: z.string() }))
+      .mutation(async ({ input }) => {
+        try {
+          const isAvailable = await testPrinter(input.printerName);
+          return {
+            success: isAvailable,
+            message: isAvailable ? "Impressora disponível" : "Impressora não encontrada",
+          };
+        } catch (error) {
+          console.error("[Printer Router] Erro ao testar impressora:", error);
+          return {
+            success: false,
+            message: "Erro ao testar impressora",
+          };
+        }
+      }),
+
+    // Imprime imagem
+    printImage: publicProcedure
+      .input(
+        z.object({
+          fileKey: z.string(),
+          printerName: z.string(),
+          format: z.enum(["10x15", "15x21"]),
+          copies: z.number().default(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          // Obtém imagem do S3
+          const { url } = await storageGet(input.fileKey);
+          const response = await fetch(url);
+          const imageBuffer = Buffer.from(await response.arrayBuffer());
+
+          // Redimensiona para o formato especificado
+          const resizedBuffer = await resizeForPrint(imageBuffer, input.format);
+
+          // Imprime
+          const result = await printImageBuffer(
+            resizedBuffer,
+            input.printerName,
+            input.copies
+          );
+
+          return {
+            success: result.success,
+            message: result.message,
+          };
+        } catch (error) {
+          console.error("[Printer Router] Erro ao imprimir:", error);
+          return {
+            success: false,
+            message: `Erro ao imprimir: ${error}`,
+          };
+        }
       }),
   }),
 });

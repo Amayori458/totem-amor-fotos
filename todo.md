@@ -38,12 +38,6 @@
 - [ ] Implementar lógica de redimensionamento de fotos (backend)
 - [ ] Gerar estrutura de pastas organizada por data e pedido (backend)
 
-## Fase 6: Testes e Entrega
-- [ ] Criar testes unitários para rotas tRPC
-- [ ] Testar fluxo completo de upload e seleção
-- [ ] Criar checkpoint do projeto
-- [ ] Documentar instruções de instalação e configuração
-
 ## Tradução para Português
 - [x] Traduzir tela inicial (Welcome)
 - [x] Traduzir tela do QR Code
@@ -57,3 +51,23 @@
 
 ## Correções de Bugs
 - [x] Corrigir erro "Cannot update a component while rendering" no Processing.tsx
+
+## Conversão de Imagens e Impressoras
+- [x] Implementar conversão de imagens para JPEG no backend
+- [x] Atualizar validação de upload para aceitar todos os tipos de arquivo
+- [x] Implementar integração com impressoras Windows
+- [ ] Criar tela de seleção de impressora
+- [ ] Implementar teste de impressão
+
+## Próximas Fases
+- [ ] Criar testes unitários para rotas tRPC
+- [ ] Testar fluxo completo de upload e seleção
+- [ ] Documentar instruções de instalação e configuração
+
+## Otimização para Fujifilm ASK-400
+- [x] Implementar crop inteligente e redimensionamento exato (300 DPI)
+- [x] Criar sistema de organização de pedidos (Pedidos/Data/Pedido_ID/Tamanho/)
+- [x] Implementar fila de impressão com watchdog
+- [x] Criar driver de impressão Windows para ASK-400
+- [x] Integrar fila com rotas tRPC
+- [x] Testar fluxo completo de impressão

@@ -2,15 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { storagePut } from "./storage";
 import { createPhoto, getSessionBySessionId } from "./db";
 import { nanoid } from "nanoid";
-
-// Supported image MIME types
-const SUPPORTED_MIME_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/heic",
-  "image/heif",
-];
+import { convertToJpeg, isValidImage } from "./imageConverter";
 
 export async function handlePhotoUpload(
   req: Request,
@@ -48,35 +40,48 @@ export async function handlePhotoUpload(
     const uploadedPhotos = [];
 
     for (const file of files) {
-      // Validate MIME type
-      if (!SUPPORTED_MIME_TYPES.includes(file.mimetype)) {
-        console.warn(`Skipping unsupported file type: ${file.mimetype}`);
+      try {
+        // Valida se é uma imagem (por conteúdo, não extensão)
+        const isImage = await isValidImage(file.buffer);
+        if (!isImage) {
+          console.warn(`Arquivo não é uma imagem válida: ${file.originalname}`);
+          continue;
+        }
+
+        // Converte para JPEG
+        const { buffer: jpegBuffer, fileName: jpegFileName } = await convertToJpeg(
+          file.buffer,
+          file.originalname
+        );
+
+        // Gera chave única para S3
+        const fileKey = `totem-uploads/${sessionId}/${nanoid(16)}.jpg`;
+
+        // Upload para S3
+        const { url } = await storagePut(fileKey, jpegBuffer, "image/jpeg");
+
+        // Salva no banco de dados
+        const photo = await createPhoto({
+          sessionId,
+          fileKey,
+          fileUrl: url,
+          fileName: jpegFileName,
+          mimeType: "image/jpeg",
+          fileSize: jpegBuffer.length,
+          selected: 0,
+        });
+
+        uploadedPhotos.push({
+          id: photo.id,
+          fileName: photo.fileName,
+          fileUrl: photo.fileUrl,
+        });
+
+        console.log(`[Upload] Foto processada com sucesso: ${jpegFileName}`);
+      } catch (fileError) {
+        console.error(`[Upload] Erro ao processar arquivo ${file.originalname}:`, fileError);
         continue;
       }
-
-      // Generate unique file key
-      const fileExtension = file.originalname.split(".").pop() || "jpg";
-      const fileKey = `totem-uploads/${sessionId}/${nanoid(16)}.${fileExtension}`;
-
-      // Upload to S3
-      const { url } = await storagePut(fileKey, file.buffer, file.mimetype);
-
-      // Save to database
-      const photo = await createPhoto({
-        sessionId,
-        fileKey,
-        fileUrl: url,
-        fileName: file.originalname,
-        mimeType: file.mimetype,
-        fileSize: file.size,
-        selected: 0,
-      });
-
-      uploadedPhotos.push({
-        id: photo.id,
-        fileName: photo.fileName,
-        fileUrl: photo.fileUrl,
-      });
     }
 
     return res.status(200).json({

@@ -128,7 +128,7 @@ export default function QRCodeScreen() {
         </div>
 
         <footer className="w-full py-6 text-center">
-          <p className="text-sm text-gray-500">© 2024 Amor por Fotos</p>
+          <p className="text-sm text-gray-500">© 2025 Amor por Fotos</p>
         </footer>
       </div>
     </div>
