@@ -71,3 +71,10 @@
 - [x] Criar driver de impressão Windows para ASK-400
 - [x] Integrar fila com rotas tRPC
 - [x] Testar fluxo completo de impressão
+
+
+## Novas Funcionalidades Solicitadas
+- [x] Configurar QR Code com timeout de 240 segundos
+- [x] Criar painel administrativo com visualização de pedidos
+- [x] Implementar teste de calibração automático
+- [x] Configurar modo Kiosk com Electron para Windows

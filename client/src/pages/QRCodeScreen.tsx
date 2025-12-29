@@ -19,7 +19,7 @@ export default function QRCodeScreen() {
       setPhotosReceived(photos.length);
     }
   }, [photos]);
-  const [inactivityTimer, setInactivityTimer] = useState<number>(60);
+  const [inactivityTimer, setInactivityTimer] = useState<number>(240); // 240 segundos = 4 minutos
 
   const createSession = trpc.totem.createSession.useMutation();
 
