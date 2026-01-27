@@ -2,7 +2,8 @@
   "appId": "com.amorporfotos.totem",
   "productName": "Amor por Fotos - Totem",
   "directories": {
-    "buildResources": "assets"
+    "buildResources": "assets",
+    "output": "dist-electron"
   },
   "files": [
     "dist",
@@ -14,17 +15,9 @@
     "target": [
       {
         "target": "nsis",
-        "arch": [
-          "x64"
-        ]
+        "arch": ["x64"]
       }
-    ],
-    "certificateFile": null,
-    "certificatePassword": null,
-    "signingHashAlgorithms": [
-      "sha256"
-    ],
-    "sign": null
+    ]
   },
   "nsis": {
     "oneClick": false,
@@ -32,17 +25,5 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
     "shortcutName": "Amor por Fotos - Totem"
-  },
-  "linux": {
-    "target": [
-      "AppImage",
-      "deb"
-    ]
-  },
-  "mac": {
-    "target": [
-      "dmg",
-      "zip"
-    ]
   }
 }
