@@ -30,9 +30,9 @@ export default function Processing() {
 
   useEffect(() => {
     if (showFinal && countdown === 0) {
-      setLocation("/");
+      setLocation(`/receipt/${orderNumber}`);
     }
-  }, [showFinal, countdown, setLocation]);
+  }, [showFinal, countdown, setLocation, orderNumber]);
 
   useEffect(() => {
     if (showFinal && countdown > 0) {
@@ -86,10 +86,10 @@ export default function Processing() {
 
           <div className="flex px-4 py-8 justify-center w-full">
             <Button
-              onClick={() => setLocation("/")}
+              onClick={() => setLocation(`/receipt/${orderNumber}`)}
               className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
             >
-              Voltar ao Início
+              Ver Comprovante
             </Button>
           </div>
 
