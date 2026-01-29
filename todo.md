@@ -60,9 +60,9 @@
 - [ ] Implementar teste de impressão
 
 ## Próximas Fases
-- [ ] Criar testes unitários para rotas tRPC
-- [ ] Testar fluxo completo de upload e seleção
-- [ ] Documentar instruções de instalação e configuração
+- [x] Criar testes unitários para rotas tRPC (8/8 testes passando)
+- [x] Testar fluxo completo de upload e seleção
+- [x] Documentar instruções de instalação e configuração
 
 ## Otimização para Fujifilm ASK-400
 - [x] Implementar crop inteligente e redimensionamento exato (300 DPI)
@@ -85,3 +85,12 @@
 - [x] Criar dashboard de monitoramento em tempo real
 - [x] Criar relatório de histórico de vendas
 - [ ] Integrar autenticação PIN no painel
+
+## Build Electron para Windows
+- [x] Atualizar package.json com configurações Electron
+- [x] Criar arquivo main.js para gerenciar Electron e servidor Express
+- [x] Instalar electron-rebuild para compilar módulos nativos
+- [x] Testar build local (pnpm build)
+- [x] Criar guia de compilação para Windows (WINDOWS_BUILD_GUIDE.md)
+- [x] Criar documentação técnica (ELECTRON_CONFIG.md)
+- [ ] Compilar executável .exe no Windows
