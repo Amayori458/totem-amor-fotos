@@ -78,3 +78,10 @@
 - [x] Criar painel administrativo com visualização de pedidos
 - [x] Implementar teste de calibração automático
 - [x] Configurar modo Kiosk com Electron para Windows
+
+## Painel Gerencial Avançado
+- [x] Criar tabelas de configurações no banco de dados
+- [x] Criar painel de configurações com edição de preços
+- [x] Criar dashboard de monitoramento em tempo real
+- [x] Criar relatório de histórico de vendas
+- [ ] Integrar autenticação PIN no painel

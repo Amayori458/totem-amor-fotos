@@ -82,3 +82,40 @@ export const orders = mysqlTable("orders", {
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Settings table - stores totem configuration values
+ */
+export const settings = mysqlTable("settings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["number", "string", "boolean", "json"]).default("string").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;
+
+/**
+ * Sales history table - tracks all completed orders for reporting
+ */
+export const salesHistory = mysqlTable("salesHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  orderNumber: varchar("orderNumber", { length: 64 }).notNull(),
+  photoCount: int("photoCount").notNull(),
+  format10x15: int("format10x15").default(0).notNull(),
+  format15x21: int("format15x21").default(0).notNull(),
+  price10x15: int("price10x15").default(590).notNull(),
+  price15x21: int("price15x21").default(890).notNull(),
+  totalPrice: int("totalPrice").notNull(),
+  status: mysqlEnum("status", ["pending", "paid", "printed", "completed"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  paidAt: timestamp("paidAt"),
+  completedAt: timestamp("completedAt"),
+});
+
+export type SalesHistory = typeof salesHistory.$inferSelect;
+export type InsertSalesHistory = typeof salesHistory.$inferInsert;

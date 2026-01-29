@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminSettings from "./pages/AdminSettings";
 import Welcome from "./pages/Welcome";
 import QRCodeScreen from "./pages/QRCodeScreen";
 import MobileUpload from "./pages/MobileUpload";
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/processing/:orderNumber"} component={Processing} />
       <Route path={"/receipt/:orderNumber"} component={Receipt} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin/settings"} component={AdminSettings} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
