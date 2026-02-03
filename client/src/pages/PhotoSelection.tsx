@@ -146,7 +146,7 @@ export default function PhotoSelection() {
 
             <div className="flex items-center justify-center py-10">
               <p className="text-lg font-bold text-gray-600">
-                {selectedPhotos.size} foto${selectedPhotos.size !== 1 ? 's' : ''} selecionada${selectedPhotos.size !== 1 ? 's' : ''}
+                {selectedPhotos.size} {selectedPhotos.size !== 1 ? 'fotos' : 'foto'} {selectedPhotos.size !== 1 ? 'selecionadas' : 'selecionada'}
               </p>
             </div>
           </div>
