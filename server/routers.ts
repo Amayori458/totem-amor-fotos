@@ -11,6 +11,7 @@ import {
   getPhotosBySessionId,
   updatePhotoSelection,
   createOrder,
+  getOrderByOrderNumber,
 } from "./db";
 import { getPrinters, testPrinter, printImageBuffer } from "./printerManager";
 import { resizeForPrint } from "./imageConverter";
@@ -73,6 +74,16 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await updatePhotoSelection(input.photoId, input.selected, input.format);
         return { success: true };
+      }),
+
+    getOrder: publicProcedure
+      .input(z.object({ orderNumber: z.string() }))
+      .query(async ({ input }) => {
+        const order = await getOrderByOrderNumber(input.orderNumber);
+        if (!order) {
+          throw new Error(`Pedido ${input.orderNumber} não encontrado`);
+        }
+        return order;
       }),
 
     createOrder: publicProcedure

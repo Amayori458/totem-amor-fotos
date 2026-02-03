@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 
 interface PhotoToPrint {
   fileKey: string;
+  fileName: string;
   format: "10x15" | "15x21";
 }
 
@@ -20,33 +21,44 @@ export default function Processing() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isPrinting, setIsPrinting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Busca dados do pedido e fotos para imprimir
-  useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        // Aqui você buscaria os dados reais do backend
-        // Por enquanto, vamos usar dados simulados
-        const mockPhotos: PhotoToPrint[] = [
-          { fileKey: "photo1.jpg", format: "10x15" },
-          { fileKey: "photo2.jpg", format: "10x15" },
-          { fileKey: "photo3.jpg", format: "15x21" },
-        ];
-        setPhotosQueue(mockPhotos);
-      } catch (error) {
-        console.error("Erro ao buscar fotos:", error);
-        setErrorMessage("Erro ao carregar fotos");
-      }
-    };
+  const { data: orderData, error: queryError } = trpc.totem.getOrder.useQuery(
+    { orderNumber },
+    { enabled: !!orderNumber }
+  );
 
-    if (orderNumber) {
-      fetchOrderData();
+  useEffect(() => {
+    if (queryError) {
+      setErrorMessage(`Erro ao carregar pedido: ${queryError.message}`);
+      setIsLoading(false);
+      return;
     }
-  }, [orderNumber]);
+
+    if (orderData) {
+      try {
+        // Extrai fotos do metadata do pedido
+        const photos = orderData.metadata?.photos || [];
+        const photosToQueue: PhotoToPrint[] = photos.map((p: any) => ({
+          fileKey: p.fileKey,
+          fileName: p.fileName,
+          format: p.format,
+        }));
+
+        setPhotosQueue(photosToQueue);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erro ao processar fotos:", error);
+        setErrorMessage(`Erro ao processar fotos: ${error}`);
+        setIsLoading(false);
+      }
+    }
+  }, [orderData, queryError]);
 
   // Imprime fotos uma por uma
   useEffect(() => {
-    if (photosQueue.length === 0) return;
+    if (photosQueue.length === 0 || isLoading) return;
     if (isPrinting) return;
 
     const printNextPhoto = async () => {
@@ -63,7 +75,7 @@ export default function Processing() {
 
       try {
         // Simula impressão (em produção, chamaria a API real)
-        console.log(`Imprimindo foto ${currentPhotoIndex + 1}/${photosQueue.length}: ${photo.fileKey}`);
+        console.log(`Imprimindo foto ${currentPhotoIndex + 1}/${photosQueue.length}: ${photo.fileName}`);
         
         // Aguarda 2 segundos para simular impressão
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -79,7 +91,7 @@ export default function Processing() {
     };
 
     printNextPhoto();
-  }, [photosQueue, currentPhotoIndex, isPrinting]);
+  }, [photosQueue, currentPhotoIndex, isPrinting, isLoading]);
 
   // Countdown para retornar à tela inicial após conclusão
   useEffect(() => {
@@ -133,7 +145,7 @@ export default function Processing() {
           </h1>
 
           <p className="text-gray-600 text-lg font-normal leading-normal pb-3 pt-1 px-4 text-center mb-4">
-            Todas as fotos foram impressas com sucesso.
+            {photosQueue.length} {photosQueue.length === 1 ? 'foto foi' : 'fotos foram'} impressas com sucesso.
           </p>
 
           <p className="text-sm text-gray-500 mb-2">Pedido: {orderNumber}</p>

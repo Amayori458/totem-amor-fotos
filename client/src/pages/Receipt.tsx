@@ -23,43 +23,63 @@ export default function Receipt() {
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [countdown, setCountdown] = useState(30);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const orderNumber = params?.orderNumber || "";
 
   // Busca dados reais do pedido do backend
+  const { data: orderData, isLoading, error: queryError } = trpc.totem.getOrder.useQuery(
+    { orderNumber },
+    { enabled: !!orderNumber }
+  );
+
   useEffect(() => {
-    const fetchOrderData = async () => {
+    if (queryError) {
+      setError(`Erro ao carregar pedido: ${queryError.message}`);
+      return;
+    }
+
+    if (!isLoading && orderData) {
       try {
-        // Aqui você buscaria os dados reais do backend
-        // Por enquanto, vamos usar dados simulados que viriam do backend
-        const mockReceipt: ReceiptData = {
-          orderNumber,
-          format10x15: 2,
-          format15x21: 1,
-          totalPrice: (2 * PRICES["10x15"]) + (1 * PRICES["15x21"]),
+        const result = orderData;
+        
+        if (!result) {
+          setError(`Pedido ${orderNumber} não encontrado`);
+          return;
+        }
+
+        // Extrai dados das fotos do metadata
+        const photos = result.metadata?.photos || [];
+        const format10x15 = photos.filter((p: any) => p.format === "10x15").length;
+        const format15x21 = photos.filter((p: any) => p.format === "15x21").length;
+        const totalPrice = (format10x15 * PRICES["10x15"]) + (format15x21 * PRICES["15x21"]);
+
+        const receipt: ReceiptData = {
+          orderNumber: result.orderNumber,
+          format10x15,
+          format15x21,
+          totalPrice,
           timestamp: new Date().toLocaleString("pt-BR"),
         };
-        setReceiptData(mockReceipt);
-      } catch (error) {
-        console.error("Erro ao buscar dados do pedido:", error);
-      }
-    };
 
-    if (orderNumber) {
-      fetchOrderData();
+        setReceiptData(receipt);
+      } catch (error) {
+        console.error("Erro ao processar dados do pedido:", error);
+        setError(`Erro ao processar pedido: ${error}`);
+      }
     }
-  }, [orderNumber]);
+  }, [orderData, isLoading, queryError]);
 
   // Imprime automaticamente quando os dados estão prontos
   useEffect(() => {
-    if (receiptData && !isPrinting) {
+    if (receiptData && !isPrinting && !error) {
       setIsPrinting(true);
       // Aguarda um pouco para garantir que o DOM está renderizado
       setTimeout(() => {
         window.print();
       }, 500);
     }
-  }, [receiptData, isPrinting]);
+  }, [receiptData, isPrinting, error]);
 
   // Countdown para retornar à tela inicial
   useEffect(() => {
@@ -72,12 +92,28 @@ export default function Receipt() {
     return () => clearTimeout(timer);
   }, [countdown, setLocation]);
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-b from-[#e8f4f8] to-[#f0fafb]">
+        <div className="text-center">
+          <p className="text-red-600 font-bold mb-4">{error}</p>
+          <button
+            onClick={() => setLocation("/welcome")}
+            className="px-6 py-3 bg-[#2beede] text-black font-bold rounded-lg"
+          >
+            Voltar ao Início
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!receiptData) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-b from-[#e8f4f8] to-[#f0fafb]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2beede] mx-auto mb-4"></div>
-          <p className="text-gray-600">Processando seu pedido...</p>
+          <p className="text-gray-600">Carregando comprovante...</p>
         </div>
       </div>
     );
