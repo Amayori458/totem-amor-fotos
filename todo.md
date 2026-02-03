@@ -111,4 +111,8 @@
 - [x] Remover QR Code do comprovante
 - [x] Corrigir exibição de detalhes do pedido no comprovante
 - [x] Configurar comprovante para imprimir junto com as fotos
+- [x] Comprovante mostra dados reais do pedido (não exemplo fixo)
+- [x] Remover botão de impressão - impressão automática obrigatória
+- [x] Implementar impressão real de fotos durante tela de carregamento
+- [x] Limpar painel administrativo
 - [ ] Testar na URL amorporrevelar.manus.space

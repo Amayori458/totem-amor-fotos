@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
+
+interface PhotoToPrint {
+  fileKey: string;
+  format: "10x15" | "15x21";
+}
 
 export default function Processing() {
   const [, params] = useRoute("/processing/:orderNumber");
@@ -11,30 +16,78 @@ export default function Processing() {
   const [progress, setProgress] = useState(0);
   const [showFinal, setShowFinal] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const [photosQueue, setPhotosQueue] = useState<PhotoToPrint[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  // Busca dados do pedido e fotos para imprimir
   useEffect(() => {
-    // Simulate processing progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setShowFinal(true);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    const fetchOrderData = async () => {
+      try {
+        // Aqui você buscaria os dados reais do backend
+        // Por enquanto, vamos usar dados simulados
+        const mockPhotos: PhotoToPrint[] = [
+          { fileKey: "photo1.jpg", format: "10x15" },
+          { fileKey: "photo2.jpg", format: "10x15" },
+          { fileKey: "photo3.jpg", format: "15x21" },
+        ];
+        setPhotosQueue(mockPhotos);
+      } catch (error) {
+        console.error("Erro ao buscar fotos:", error);
+        setErrorMessage("Erro ao carregar fotos");
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    if (orderNumber) {
+      fetchOrderData();
+    }
+  }, [orderNumber]);
 
+  // Imprime fotos uma por uma
+  useEffect(() => {
+    if (photosQueue.length === 0) return;
+    if (isPrinting) return;
+
+    const printNextPhoto = async () => {
+      if (currentPhotoIndex >= photosQueue.length) {
+        // Todas as fotos foram impressas
+        setProgress(100);
+        setShowFinal(true);
+        return;
+      }
+
+      setIsPrinting(true);
+      const photo = photosQueue[currentPhotoIndex];
+      const newProgress = Math.round(((currentPhotoIndex + 1) / photosQueue.length) * 100);
+
+      try {
+        // Simula impressão (em produção, chamaria a API real)
+        console.log(`Imprimindo foto ${currentPhotoIndex + 1}/${photosQueue.length}: ${photo.fileKey}`);
+        
+        // Aguarda 2 segundos para simular impressão
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        setProgress(newProgress);
+        setCurrentPhotoIndex(prev => prev + 1);
+      } catch (error) {
+        console.error("Erro ao imprimir foto:", error);
+        setErrorMessage(`Erro ao imprimir foto ${currentPhotoIndex + 1}`);
+      } finally {
+        setIsPrinting(false);
+      }
+    };
+
+    printNextPhoto();
+  }, [photosQueue, currentPhotoIndex, isPrinting]);
+
+  // Countdown para retornar à tela inicial após conclusão
   useEffect(() => {
     if (showFinal && countdown === 0) {
       setLocation(`/receipt/${orderNumber}`);
+      return;
     }
-  }, [showFinal, countdown, setLocation, orderNumber]);
 
-  useEffect(() => {
     if (showFinal && countdown > 0) {
       const timer = setTimeout(() => {
         setCountdown((prev) => prev - 1);
@@ -42,8 +95,9 @@ export default function Processing() {
 
       return () => clearTimeout(timer);
     }
-  }, [showFinal, countdown]);
+  }, [showFinal, countdown, setLocation, orderNumber]);
 
+  // Tela final após todas as fotos serem impressas
   if (showFinal) {
     return (
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
@@ -79,19 +133,10 @@ export default function Processing() {
           </h1>
 
           <p className="text-gray-600 text-lg font-normal leading-normal pb-3 pt-1 px-4 text-center mb-4">
-            Por favor, retire-as no balcão.
+            Todas as fotos foram impressas com sucesso.
           </p>
 
           <p className="text-sm text-gray-500 mb-2">Pedido: {orderNumber}</p>
-
-          <div className="flex px-4 py-8 justify-center w-full">
-            <Button
-              onClick={() => setLocation(`/receipt/${orderNumber}`)}
-              className="w-full max-w-xs h-14 px-8 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-full"
-            >
-              Ver Comprovante
-            </Button>
-          </div>
 
           <p className="text-sm text-gray-500">Retornando ao início em {countdown}s...</p>
         </div>
@@ -99,6 +144,7 @@ export default function Processing() {
     );
   }
 
+  // Tela de processamento
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
       <div className="relative z-10 flex flex-col items-center justify-center max-w-xl w-full text-center">
@@ -108,12 +154,18 @@ export default function Processing() {
         </div>
 
         <h1 className="text-[#333333] tracking-tight text-[32px] sm:text-4xl font-bold leading-tight px-4 text-center pb-3 pt-6">
-          Processando seu Pedido...
+          Imprimindo suas Fotos...
         </h1>
 
         <p className="text-gray-600 text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          Por favor, aguarde enquanto preparamos suas fotos.
+          Por favor, aguarde enquanto imprimimos suas fotos.
         </p>
+
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6 text-red-700 text-sm w-full">
+            {errorMessage}
+          </div>
+        )}
 
         <div className="w-full max-w-md px-4 py-8">
           <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
@@ -123,9 +175,21 @@ export default function Processing() {
             ></div>
           </div>
           <p className="text-lg font-bold text-primary">{progress}%</p>
+          {photosQueue.length > 0 && (
+            <p className="text-sm text-gray-500 mt-2">
+              Foto {currentPhotoIndex + 1} de {photosQueue.length}
+            </p>
+          )}
         </div>
 
         <p className="text-sm text-gray-500">Pedido: {orderNumber}</p>
+
+        {/* Animação de impressão */}
+        <div className="mt-8 flex gap-2">
+          <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
+          <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+          <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+        </div>
       </div>
     </div>
   );
