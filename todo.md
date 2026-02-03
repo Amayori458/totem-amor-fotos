@@ -94,3 +94,21 @@
 - [x] Criar guia de compilação para Windows (WINDOWS_BUILD_GUIDE.md)
 - [x] Criar documentação técnica (ELECTRON_CONFIG.md)
 - [ ] Compilar executável .exe no Windows
+
+## Teste no Navegador com Impressora Comum
+- [ ] Testar tela inicial
+- [ ] Testar geração de QR Code
+- [ ] Testar upload de fotos via mobile
+- [ ] Testar seleção de fotos
+- [ ] Testar escolha de formato
+- [ ] Testar impressão com impressora comum
+- [ ] Testar tela final e retorno ao início
+- [ ] Validar timeout de inatividade
+
+## Correções Solicitadas para Teste
+- [x] Atualizar preço 10×15 para R$ 0,75
+- [x] Atualizar preço 15×21 para R$ 2,20
+- [x] Remover QR Code do comprovante
+- [x] Corrigir exibição de detalhes do pedido no comprovante
+- [x] Configurar comprovante para imprimir junto com as fotos
+- [ ] Testar na URL amorporrevelar.manus.space

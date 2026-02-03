@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE settings SET price_value = 0.75 WHERE setting_key = 'price_10x15'; UPDATE settings SET price_value = 2.20 WHERE setting_key = 'price_15x21'; SELECT setting_key, price_value FROM settings WHERE setting_key LIKE 'price_%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user Rx6D6QbdSHCB3cw.root --database m4dmv6WsptA3qd3kPgCMBX --execute UPDATE settings SET price_value = 0.75 WHERE setting_key = 'price_10x15'; UPDATE settings SET price_value = 2.20 WHERE setting_key = 'price_15x21'; SELECT setting_key, price_value FROM settings WHERE setting_key LIKE 'price_%';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'setting_key' in 'where clause'"
+  ]
+}

@@ -15,6 +15,8 @@ import {
 import { getPrinters, testPrinter, printImageBuffer } from "./printerManager";
 import { resizeForPrint } from "./imageConverter";
 import { storageGet } from "./storage";
+import { generateReceiptForPrinting } from "./receiptGenerator";
+
 
 export const appRouter = router({
   system: systemRouter,
@@ -190,6 +192,39 @@ export const appRouter = router({
           return {
             success: false,
             message: `Erro ao imprimir: ${error}`,
+          };
+        }
+      }),
+
+    // Imprime comprovante em PDF
+    printReceipt: publicProcedure
+      .input(
+        z.object({
+          orderNumber: z.string(),
+          printerName: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          // Gera PDF do comprovante
+          const receiptBuffer = await generateReceiptForPrinting(input.orderNumber);
+
+          // Imprime o comprovante
+          const result = await printImageBuffer(
+            receiptBuffer,
+            input.printerName,
+            1
+          );
+
+          return {
+            success: result.success,
+            message: result.message,
+          };
+        } catch (error) {
+          console.error("[Printer Router] Erro ao imprimir comprovante:", error);
+          return {
+            success: false,
+            message: `Erro ao imprimir comprovante: ${error}`,
           };
         }
       }),

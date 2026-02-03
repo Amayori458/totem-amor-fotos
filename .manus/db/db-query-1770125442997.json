@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE settings SET value = '75' WHERE `key` = 'price_10x15'; UPDATE settings SET value = '220' WHERE `key` = 'price_15x21'; SELECT `key`, value FROM settings WHERE `key` LIKE 'price_%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user Rx6D6QbdSHCB3cw.root --database m4dmv6WsptA3qd3kPgCMBX --execute UPDATE settings SET value = '75' WHERE `key` = 'price_10x15'; UPDATE settings SET value = '220' WHERE `key` = 'price_15x21'; SELECT `key`, value FROM settings WHERE `key` LIKE 'price_%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 62
+}

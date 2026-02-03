@@ -10,6 +10,7 @@ import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime()];
 
 export default defineConfig({
+  base: './', // Caminhos relativos para Electron
   plugins,
   resolve: {
     alias: {

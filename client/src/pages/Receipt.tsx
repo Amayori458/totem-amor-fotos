@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
-import { QRCodeSVG } from "qrcode.react";
+
 
 interface ReceiptData {
   orderNumber: string;
@@ -17,8 +17,8 @@ interface ReceiptData {
 
 // Preços configuráveis (em reais)
 const PRICES = {
-  "10x15": 5.90,
-  "15x21": 8.90,
+  "10x15": 0.75,
+  "15x21": 2.20,
 };
 
 export default function Receipt() {
@@ -89,11 +89,6 @@ export default function Receipt() {
         <div className="text-center mb-6">
           <p className="text-gray-600 text-sm">Número do Pedido</p>
           <p className="text-2xl font-bold text-[#FF8C69]">{receiptData.orderNumber}</p>
-        </div>
-
-        {/* QR Code */}
-        <div className="flex justify-center mb-6">
-          <QRCodeSVG value={receiptData.orderNumber} size={120} level="H" includeMargin={false} />
         </div>
 
         {/* Detalhes das Fotos */}
