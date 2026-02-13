@@ -207,6 +207,27 @@ export const appRouter = router({
         }
       }),
 
+    // Gera PDF do comprovante
+    generateReceipt: publicProcedure
+      .input(z.object({ orderNumber: z.string() }))
+      .query(async ({ input }) => {
+        try {
+          const receiptBuffer = await generateReceiptForPrinting(input.orderNumber);
+          const base64 = receiptBuffer.toString('base64');
+          return {
+            success: true,
+            pdf: base64,
+            mimeType: 'application/pdf',
+          };
+        } catch (error) {
+          console.error("[Printer Router] Erro ao gerar comprovante:", error);
+          return {
+            success: false,
+            error: `Erro ao gerar comprovante: ${error}`,
+          };
+        }
+      }),
+
     // Imprime comprovante em PDF
     printReceipt: publicProcedure
       .input(

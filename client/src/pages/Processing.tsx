@@ -3,10 +3,10 @@ import { useRoute, useLocation } from "wouter";
 import { Heart } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
-interface PhotoToPrint {
-  fileKey: string;
-  fileName: string;
-  format: "10x15" | "15x21";
+interface PrintItem {
+  type: "photo" | "receipt";
+  id: string;
+  fileName?: string;
 }
 
 export default function Processing() {
@@ -17,11 +17,12 @@ export default function Processing() {
   const [progress, setProgress] = useState(0);
   const [showFinal, setShowFinal] = useState(false);
   const [countdown, setCountdown] = useState(10);
-  const [photosQueue, setPhotosQueue] = useState<PhotoToPrint[]>([]);
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [printQueue, setPrintQueue] = useState<PrintItem[]>([]);
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isPrinting, setIsPrinting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentItemType, setCurrentItemType] = useState<"photo" | "receipt">("photo");
 
   // Busca dados do pedido e fotos para imprimir
   const { data: orderData, error: queryError } = trpc.totem.getOrder.useQuery(
@@ -40,13 +41,22 @@ export default function Processing() {
       try {
         // Extrai fotos do metadata do pedido
         const photos = orderData.metadata?.photos || [];
-        const photosToQueue: PhotoToPrint[] = photos.map((p: any) => ({
-          fileKey: p.fileKey,
+        
+        // Cria fila de impressão: fotos + comprovante no final
+        const queue: PrintItem[] = photos.map((p: any, index: number) => ({
+          type: "photo",
+          id: `photo-${index}`,
           fileName: p.fileName,
-          format: p.format,
         }));
 
-        setPhotosQueue(photosToQueue);
+        // Adiciona comprovante no final
+        queue.push({
+          type: "receipt",
+          id: "receipt",
+          fileName: `Comprovante-${orderNumber}`,
+        });
+
+        setPrintQueue(queue);
         setIsLoading(false);
       } catch (error) {
         console.error("Erro ao processar fotos:", error);
@@ -54,49 +64,54 @@ export default function Processing() {
         setIsLoading(false);
       }
     }
-  }, [orderData, queryError]);
+  }, [orderData, queryError, orderNumber]);
 
-  // Imprime fotos uma por uma
+  // Imprime itens da fila um por um (fotos + comprovante)
   useEffect(() => {
-    if (photosQueue.length === 0 || isLoading) return;
+    if (printQueue.length === 0 || isLoading) return;
     if (isPrinting) return;
 
-    const printNextPhoto = async () => {
-      if (currentPhotoIndex >= photosQueue.length) {
-        // Todas as fotos foram impressas
+    const printNextItem = async () => {
+      if (currentItemIndex >= printQueue.length) {
+        // Todas as fotos e comprovante foram impressos
         setProgress(100);
         setShowFinal(true);
         return;
       }
 
       setIsPrinting(true);
-      const photo = photosQueue[currentPhotoIndex];
-      const newProgress = Math.round(((currentPhotoIndex + 1) / photosQueue.length) * 100);
+      const item = printQueue[currentItemIndex];
+      const newProgress = Math.round(((currentItemIndex + 1) / printQueue.length) * 100);
 
       try {
+        setCurrentItemType(item.type);
+
+        if (item.type === "photo") {
+          console.log(`Imprimindo foto ${currentItemIndex + 1}/${printQueue.length}: ${item.fileName}`);
+        } else {
+          console.log(`Imprimindo comprovante...`);
+        }
+
         // Simula impressão (em produção, chamaria a API real)
-        console.log(`Imprimindo foto ${currentPhotoIndex + 1}/${photosQueue.length}: ${photo.fileName}`);
-        
-        // Aguarda 2 segundos para simular impressão
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         setProgress(newProgress);
-        setCurrentPhotoIndex(prev => prev + 1);
+        setCurrentItemIndex(prev => prev + 1);
       } catch (error) {
-        console.error("Erro ao imprimir foto:", error);
-        setErrorMessage(`Erro ao imprimir foto ${currentPhotoIndex + 1}`);
+        console.error("Erro ao imprimir:", error);
+        setErrorMessage(`Erro ao imprimir: ${error}`);
       } finally {
         setIsPrinting(false);
       }
     };
 
-    printNextPhoto();
-  }, [photosQueue, currentPhotoIndex, isPrinting, isLoading]);
+    printNextItem();
+  }, [printQueue, currentItemIndex, isPrinting, isLoading]);
 
   // Countdown para retornar à tela inicial após conclusão
   useEffect(() => {
     if (showFinal && countdown === 0) {
-      setLocation(`/receipt/${orderNumber}`);
+      setLocation("/");
       return;
     }
 
@@ -107,9 +122,9 @@ export default function Processing() {
 
       return () => clearTimeout(timer);
     }
-  }, [showFinal, countdown, setLocation, orderNumber]);
+  }, [showFinal, countdown, setLocation]);
 
-  // Tela final após todas as fotos serem impressas
+  // Tela final após todas as fotos e comprovante serem impressos
   if (showFinal) {
     return (
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
@@ -145,7 +160,7 @@ export default function Processing() {
           </h1>
 
           <p className="text-gray-600 text-lg font-normal leading-normal pb-3 pt-1 px-4 text-center mb-4">
-            {photosQueue.length} {photosQueue.length === 1 ? 'foto foi' : 'fotos foram'} impressas com sucesso.
+            Todas as fotos e o comprovante foram impressos com sucesso.
           </p>
 
           <p className="text-sm text-gray-500 mb-2">Pedido: {orderNumber}</p>
@@ -170,7 +185,7 @@ export default function Processing() {
         </h1>
 
         <p className="text-gray-600 text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">
-          Por favor, aguarde enquanto imprimimos suas fotos.
+          Por favor, aguarde enquanto imprimimos suas fotos e comprovante.
         </p>
 
         {errorMessage && (
@@ -187,10 +202,15 @@ export default function Processing() {
             ></div>
           </div>
           <p className="text-lg font-bold text-primary">{progress}%</p>
-          {photosQueue.length > 0 && (
-            <p className="text-sm text-gray-500 mt-2">
-              Foto {currentPhotoIndex + 1} de {photosQueue.length}
-            </p>
+          {printQueue.length > 0 && (
+            <div className="mt-2">
+              <p className="text-sm text-gray-500">
+                {currentItemType === "photo" 
+                  ? `Foto ${currentItemIndex + 1} de ${printQueue.length}`
+                  : `Imprimindo comprovante...`
+                }
+              </p>
+            </div>
           )}
         </div>
 
