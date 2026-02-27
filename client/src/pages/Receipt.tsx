@@ -9,6 +9,12 @@ interface ReceiptData {
   format15x21: number;
   totalPrice: number;
   timestamp: string;
+  photos: Array<{
+    fileKey: string;
+    fileName: string;
+    format: "10x15" | "15x21";
+    fileUrl?: string;
+  }>;
 }
 
 // Preços configuráveis (em reais)
@@ -60,6 +66,12 @@ export default function Receipt() {
           format15x21,
           totalPrice,
           timestamp: new Date().toLocaleString("pt-BR"),
+          photos: photos.map((p: any) => ({
+            fileKey: p.fileKey,
+            fileName: p.fileName,
+            format: p.format as "10x15" | "15x21",
+            fileUrl: p.fileUrl,
+          })),
         };
 
         setReceiptData(receipt);
@@ -120,79 +132,103 @@ export default function Receipt() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#e8f4f8] to-[#f0fafb] flex flex-col items-center justify-center p-4">
-      {/* Container do Recibo */}
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full print:shadow-none print:rounded-none print:p-4">
-        {/* Logo */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-[#2beede]">
-            Amor por Fotos
-            <span className="text-red-500 ml-2">❤️</span>
-          </h1>
-          <p className="text-gray-500 text-sm mt-2">Suas memórias, reveladas com amor</p>
-        </div>
-
-        {/* Divisor */}
-        <div className="border-t-2 border-dashed border-gray-300 my-6"></div>
-
-        {/* Número do Pedido */}
-        <div className="text-center mb-6">
-          <p className="text-gray-600 text-sm">Número do Pedido</p>
-          <p className="text-2xl font-bold text-[#FF8C69]">{receiptData.orderNumber}</p>
-        </div>
-
-        {/* Detalhes das Fotos */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <h3 className="font-bold text-gray-800 mb-3">Detalhes do Pedido</h3>
-
-          {receiptData.format10x15 > 0 && (
-            <div className="flex justify-between mb-2 text-sm">
-              <span className="text-gray-700">
-                {receiptData.format10x15}x Foto 10×15 cm @ R$ {PRICES["10x15"].toFixed(2)}
-              </span>
-              <span className="font-semibold text-gray-900">
-                R$ {(receiptData.format10x15 * PRICES["10x15"]).toFixed(2)}
-              </span>
+    <div className="min-h-screen bg-white">
+      {/* PÁGINA 1: FOTOS */}
+      <div className="min-h-screen bg-white p-8 page-break">
+        <h1 className="text-4xl font-bold text-[#2beede] mb-8 text-center">Suas Fotos</h1>
+        
+        <div className="grid grid-cols-2 gap-8">
+          {receiptData.photos.map((photo, index) => (
+            <div key={index} className="border-2 border-gray-300 p-4 break-inside-avoid">
+              <div className="bg-gray-100 aspect-square flex items-center justify-center mb-3 rounded">
+                <div className="text-center text-gray-500">
+                  <p className="font-semibold text-sm">{photo.fileName}</p>
+                  <p className="text-xs mt-2">Formato: {photo.format}</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 text-center font-semibold">
+                {photo.format === "10x15" ? "10 × 15 cm" : "15 × 21 cm"}
+              </p>
             </div>
-          )}
+          ))}
+        </div>
+      </div>
 
-          {receiptData.format15x21 > 0 && (
-            <div className="flex justify-between mb-2 text-sm">
-              <span className="text-gray-700">
-                {receiptData.format15x21}x Foto 15×21 cm @ R$ {PRICES["15x21"].toFixed(2)}
-              </span>
-              <span className="font-semibold text-gray-900">
-                R$ {(receiptData.format15x21 * PRICES["15x21"]).toFixed(2)}
-              </span>
-            </div>
-          )}
-
-          <div className="border-t border-gray-300 my-3"></div>
-
-          <div className="flex justify-between text-lg font-bold">
-            <span className="text-gray-800">Total:</span>
-            <span className="text-[#FF8C69]">R$ {receiptData.totalPrice.toFixed(2)}</span>
+      {/* PÁGINA 2: COMPROVANTE */}
+      <div className="min-h-screen bg-gradient-to-b from-[#e8f4f8] to-[#f0fafb] flex flex-col items-center justify-center p-4 page-break">
+        {/* Container do Recibo */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full print:shadow-none print:rounded-none print:p-4">
+          {/* Logo */}
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-[#2beede]">
+              Amor por Fotos
+              <span className="text-red-500 ml-2">❤️</span>
+            </h1>
+            <p className="text-gray-500 text-sm mt-2">Suas memórias, reveladas com amor</p>
           </div>
-        </div>
 
-        {/* Data e Hora */}
-        <div className="text-center text-xs text-gray-500 mb-6">
-          <p>{receiptData.timestamp}</p>
-        </div>
+          {/* Divisor */}
+          <div className="border-t-2 border-dashed border-gray-300 my-6"></div>
 
-        {/* Instruções */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6 text-center text-sm text-gray-700">
-          <p className="font-semibold text-green-900 mb-1">✓ Comprovante Impresso</p>
-          <p>Suas fotos estão sendo preparadas. Retire-as no balcão.</p>
-        </div>
+          {/* Número do Pedido */}
+          <div className="text-center mb-6">
+            <p className="text-gray-600 text-sm">Número do Pedido</p>
+            <p className="text-2xl font-bold text-[#FF8C69]">{receiptData.orderNumber}</p>
+          </div>
 
-        {/* Divisor */}
-        <div className="border-t-2 border-dashed border-gray-300 my-6"></div>
+          {/* Detalhes das Fotos */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 className="font-bold text-gray-800 mb-3">Detalhes do Pedido</h3>
 
-        {/* Mensagem de Retorno */}
-        <div className="text-center">
-          <p className="text-gray-600 font-semibold mb-2">Retornando à tela inicial em {countdown}s...</p>
-          <p className="text-xs text-gray-500">Obrigado por usar Amor por Fotos!</p>
+            {receiptData.format10x15 > 0 && (
+              <div className="flex justify-between mb-2 text-sm">
+                <span className="text-gray-700">
+                  {receiptData.format10x15}x Foto 10×15 cm @ R$ {PRICES["10x15"].toFixed(2)}
+                </span>
+                <span className="font-semibold text-gray-900">
+                  R$ {(receiptData.format10x15 * PRICES["10x15"]).toFixed(2)}
+                </span>
+              </div>
+            )}
+
+            {receiptData.format15x21 > 0 && (
+              <div className="flex justify-between mb-2 text-sm">
+                <span className="text-gray-700">
+                  {receiptData.format15x21}x Foto 15×21 cm @ R$ {PRICES["15x21"].toFixed(2)}
+                </span>
+                <span className="font-semibold text-gray-900">
+                  R$ {(receiptData.format15x21 * PRICES["15x21"]).toFixed(2)}
+                </span>
+              </div>
+            )}
+
+            <div className="border-t border-gray-300 my-3"></div>
+
+            <div className="flex justify-between text-lg font-bold">
+              <span className="text-gray-800">Total:</span>
+              <span className="text-[#FF8C69]">R$ {receiptData.totalPrice.toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Data e Hora */}
+          <div className="text-center text-xs text-gray-500 mb-6">
+            <p>{receiptData.timestamp}</p>
+          </div>
+
+          {/* Instruções */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6 text-center text-sm text-gray-700">
+            <p className="font-semibold text-green-900 mb-1">✓ Fotos Impressas</p>
+            <p>Retire suas fotos e comprovante no balcão.</p>
+          </div>
+
+          {/* Divisor */}
+          <div className="border-t-2 border-dashed border-gray-300 my-6"></div>
+
+          {/* Mensagem de Retorno */}
+          <div className="text-center print:hidden">
+            <p className="text-gray-600 font-semibold mb-2">Retornando à tela inicial em {countdown}s...</p>
+            <p className="text-xs text-gray-500">Obrigado por usar Amor por Fotos!</p>
+          </div>
         </div>
       </div>
 
@@ -204,16 +240,37 @@ export default function Receipt() {
             padding: 0;
             background: white;
           }
+          
+          .page-break {
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
+          
+          .break-inside-avoid {
+            break-inside: avoid;
+          }
+          
+          .print\\:hidden {
+            display: none;
+          }
+          
           .print\\:shadow-none {
             box-shadow: none;
           }
+          
           .print\\:rounded-none {
             border-radius: 0;
           }
+          
           .print\\:p-4 {
             padding: 1rem;
           }
+          
           button {
+            display: none;
+          }
+          
+          nav {
             display: none;
           }
         }
