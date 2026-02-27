@@ -17,6 +17,7 @@ import { getPrinters, testPrinter, printImageBuffer } from "./printerManager";
 import { resizeForPrint } from "./imageConverter";
 import { storageGet } from "./storage";
 import { generateReceiptForPrinting } from "./receiptGenerator";
+import { getPrinter, initializePrinter, finalizePrinter } from "./ask300-printer";
 
 
 export const appRouter = router({
@@ -206,6 +207,86 @@ export const appRouter = router({
           };
         }
       }),
+
+    // ASK300 - Conectar impressora
+    ask300Connect: publicProcedure.mutation(async () => {
+      try {
+        const printer = getPrinter();
+        const connected = await printer.connect();
+        return {
+          success: connected,
+          message: connected ? "Impressora ASK300 conectada" : "Erro ao conectar impressora",
+        };
+      } catch (error) {
+        console.error("[ASK300] Erro ao conectar:", error);
+        return {
+          success: false,
+          message: `Erro: ${error}`,
+        };
+      }
+    }),
+
+    // ASK300 - Obter status
+    ask300Status: publicProcedure.query(async () => {
+      try {
+        const printer = getPrinter();
+        const status = await printer.getStatus();
+        return {
+          success: true,
+          data: status,
+        };
+      } catch (error) {
+        console.error("[ASK300] Erro ao obter status:", error);
+        return {
+          success: false,
+          message: `Erro: ${error}`,
+        };
+      }
+    }),
+
+    // ASK300 - Imprimir imagem
+    ask300PrintImage: publicProcedure
+      .input(
+        z.object({
+          imageBuffer: z.string(), // Base64
+          format: z.enum(["10x15", "15x21"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const printer = getPrinter();
+          const buffer = Buffer.from(input.imageBuffer, "base64");
+          const result = await printer.printImage(buffer, input.format);
+          return {
+            success: result,
+            message: result ? "Imagem impressa com sucesso" : "Erro ao imprimir imagem",
+          };
+        } catch (error) {
+          console.error("[ASK300] Erro ao imprimir:", error);
+          return {
+            success: false,
+            message: `Erro: ${error}`,
+          };
+        }
+      }),
+
+    // ASK300 - Obter configuração
+    ask300GetConfig: publicProcedure.query(() => {
+      try {
+        const printer = getPrinter();
+        const config = printer.getConfig();
+        return {
+          success: true,
+          data: config,
+        };
+      } catch (error) {
+        console.error("[ASK300] Erro ao obter configuração:", error);
+        return {
+          success: false,
+          message: `Erro: ${error}`,
+        };
+      }
+    }),
 
     // Imprime comprovante em PDF
     printReceipt: publicProcedure

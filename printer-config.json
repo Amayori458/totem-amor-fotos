@@ -1,0 +1,30 @@
+{
+  "printer": {
+    "model": "ASK300",
+    "driver": "ask300-driver",
+    "usb": {
+      "vendorId": "0x4CB",
+      "productId": "0x5006",
+      "infFile": "fpusbdrv.inf",
+      "sysFile": "fpusbdrv.sys"
+    },
+    "settings": {
+      "paperSize": "10x15",
+      "quality": "high",
+      "colorMode": "color",
+      "dpi": 300
+    }
+  },
+  "system": {
+    "kiosk": true,
+    "fullscreen": true,
+    "autoStart": true,
+    "timeout": 30000,
+    "language": "pt-BR"
+  },
+  "network": {
+    "port": 3000,
+    "host": "localhost",
+    "ssl": false
+  }
+}
