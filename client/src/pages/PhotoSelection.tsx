@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, Circle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
+interface PhotoWithFormat {
+  id: number;
+  fileKey: string;
+  fileName: string;
+  fileUrl: string;
+  selected: number;
+  format: "10x15" | "15x21";
+}
+
 export default function PhotoSelection() {
   const [, params] = useRoute("/select/:sessionId");
   const [, setLocation] = useLocation();
@@ -11,45 +20,72 @@ export default function PhotoSelection() {
 
   const { data: photos, isLoading } = trpc.totem.getPhotos.useQuery({ sessionId });
   const updateSelection = trpc.totem.updatePhotoSelection.useMutation();
+  const createOrder = trpc.totem.createOrder.useMutation();
 
-  const [selectedPhotos, setSelectedPhotos] = useState<Set<number>>(new Set());
+  const [selectedPhotos, setSelectedPhotos] = useState<Map<number, PhotoWithFormat>>(new Map());
+  const [processing, setProcessing] = useState(false);
 
-  const toggleSelection = async (photoId: number) => {
-    const newSelected = new Set(selectedPhotos);
-    const isSelected = newSelected.has(photoId);
+  const toggleSelection = async (photo: any) => {
+    const newSelected = new Map(selectedPhotos);
+    const isSelected = newSelected.has(photo.id);
 
     if (isSelected) {
-      newSelected.delete(photoId);
+      newSelected.delete(photo.id);
     } else {
-      newSelected.add(photoId);
+      newSelected.set(photo.id, {
+        ...photo,
+        format: "10x15", // Default format
+      });
     }
 
     setSelectedPhotos(newSelected);
 
     await updateSelection.mutateAsync({
-      photoId,
+      photoId: photo.id,
       selected: isSelected ? 0 : 1,
+      format: isSelected ? "10x15" : "10x15",
     });
+  };
+
+  const updatePhotoFormat = async (photoId: number, format: "10x15" | "15x21") => {
+    const newSelected = new Map(selectedPhotos);
+    const photo = newSelected.get(photoId);
+    if (photo) {
+      photo.format = format;
+      newSelected.set(photoId, photo);
+      setSelectedPhotos(newSelected);
+
+      await updateSelection.mutateAsync({
+        photoId,
+        selected: 1,
+        format,
+      });
+    }
   };
 
   const selectAll = async () => {
     if (!photos) return;
 
-    const allPhotoIds = new Set(photos.map((p) => p.id));
-    setSelectedPhotos(allPhotoIds);
-
+    const newSelected = new Map<number, PhotoWithFormat>();
     for (const photo of photos) {
+      newSelected.set(photo.id, {
+        ...photo,
+        format: "10x15",
+      });
+
       await updateSelection.mutateAsync({
         photoId: photo.id,
         selected: 1,
+        format: "10x15",
       });
     }
+    setSelectedPhotos(newSelected);
   };
 
   const deselectAll = async () => {
     if (!photos) return;
 
-    setSelectedPhotos(new Set());
+    setSelectedPhotos(new Map());
 
     for (const photo of photos) {
       await updateSelection.mutateAsync({
@@ -59,9 +95,30 @@ export default function PhotoSelection() {
     }
   };
 
-  const handleContinue = () => {
-    if (selectedPhotos.size > 0) {
-      setLocation(`/format/${sessionId}`);
+  const handleContinue = async () => {
+    if (selectedPhotos.size === 0) return;
+
+    setProcessing(true);
+
+    try {
+      const selectedPhotosArray = Array.from(selectedPhotos.values()).map((p) => ({
+        photoId: p.id,
+        fileKey: p.fileKey,
+        fileName: p.fileName,
+        format: p.format,
+      }));
+
+      const result = await createOrder.mutateAsync({
+        sessionId,
+        selectedPhotos: selectedPhotosArray,
+      });
+
+      setLocation(`/processing/${result.orderNumber}`);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Erro ao criar pedido. Tente novamente.");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -107,38 +164,67 @@ export default function PhotoSelection() {
                   Selecione suas Fotos
                 </p>
                 <p className="text-base font-normal leading-normal text-gray-600">
-                  Escolha as memórias que você quer revelar.
+                  Escolha as memórias que você quer revelar e o tamanho de cada uma.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-3">
               {photos?.map((photo) => {
                 const isSelected = selectedPhotos.has(photo.id);
+                const selectedPhoto = selectedPhotos.get(photo.id);
+                const format = selectedPhoto?.format || "10x15";
+
                 return (
                   <div
                     key={photo.id}
-                    className="group relative flex cursor-pointer flex-col"
-                    onClick={() => toggleSelection(photo.id)}
+                    className="group relative flex flex-col"
                   >
                     <div
-                      className={`absolute inset-0 z-10 rounded-lg border-4 transition-all ${
+                      className={`relative cursor-pointer rounded-lg border-3 overflow-hidden transition-all ${
                         isSelected
-                          ? "border-primary ring-4 ring-primary/30 opacity-100"
-                          : "border-transparent ring-4 ring-transparent opacity-0 group-hover:border-primary/50"
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-gray-300 hover:border-primary/50"
                       }`}
-                    ></div>
-                    <div className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
-                      {isSelected ? (
-                        <CheckCircle2 className="text-primary" strokeWidth={3} />
-                      ) : (
-                        <Circle className="text-gray-400" />
-                      )}
+                      onClick={() => toggleSelection(photo)}
+                    >
+                      <div
+                        className="w-full aspect-square bg-center bg-no-repeat bg-cover"
+                        style={{ backgroundImage: `url("${photo.fileUrl}")` }}
+                      ></div>
+                      <div className="absolute right-2 top-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm">
+                        {isSelected ? (
+                          <CheckCircle2 className="text-primary" size={20} strokeWidth={3} />
+                        ) : (
+                          <Circle className="text-gray-400" size={20} />
+                        )}
+                      </div>
                     </div>
-                    <div
-                      className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg"
-                      style={{ backgroundImage: `url("${photo.fileUrl}")` }}
-                    ></div>
+
+                    {isSelected && (
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => updatePhotoFormat(photo.id, "10x15")}
+                          className={`flex-1 py-1 px-2 text-xs rounded font-semibold transition-all ${
+                            format === "10x15"
+                              ? "bg-primary text-white"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          10×15
+                        </button>
+                        <button
+                          onClick={() => updatePhotoFormat(photo.id, "15x21")}
+                          className={`flex-1 py-1 px-2 text-xs rounded font-semibold transition-all ${
+                            format === "15x21"
+                              ? "bg-primary text-white"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          15×21
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -174,10 +260,10 @@ export default function PhotoSelection() {
               <p className="text-center text-sm text-gray-500 mb-6">foto${selectedPhotos.size !== 1 ? 's' : ''} selecionada${selectedPhotos.size !== 1 ? 's' : ''}</p>
               <Button
                 onClick={handleContinue}
-                disabled={selectedPhotos.size === 0}
+                disabled={selectedPhotos.size === 0 || processing}
                 className="w-full h-14 rounded-full bg-accent hover:bg-accent/90 text-white font-bold disabled:bg-gray-300 disabled:text-gray-500"
               >
-                Continuar →
+                {processing ? "Processando..." : "Continuar →"}
               </Button>
             </div>
           </div>
@@ -201,10 +287,10 @@ export default function PhotoSelection() {
         </div>
         <Button
           onClick={handleContinue}
-          disabled={selectedPhotos.size === 0}
+          disabled={selectedPhotos.size === 0 || processing}
           className="w-full h-14 rounded-full bg-accent hover:bg-accent/90 text-white font-bold disabled:bg-gray-300 disabled:text-gray-500"
         >
-          Continuar ({selectedPhotos.size}) →
+          {processing ? "Processando..." : `Continuar (${selectedPhotos.size}) →`}
         </Button>
       </div>
     </div>

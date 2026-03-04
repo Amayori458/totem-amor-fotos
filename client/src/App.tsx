@@ -14,6 +14,7 @@ import PhotoSelection from "./pages/PhotoSelection";
 import FormatSelection from "./pages/FormatSelection";
 import Processing from "./pages/Processing";
 import Receipt from "./pages/Receipt";
+import MobileReceipt from "./pages/MobileReceipt";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/format/:sessionId"} component={FormatSelection} />
       <Route path={"/processing/:orderNumber"} component={Processing} />
       <Route path={"/receipt/:orderNumber"} component={Receipt} />
+      <Route path={"/mobile-receipt/:orderNumber"} component={MobileReceipt} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/admin/settings"} component={AdminSettings} />
       <Route path={"/404"} component={NotFound} />
