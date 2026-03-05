@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Eye } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import PhotoCropPreview from "@/components/PhotoCropPreview";
 
 interface PhotoWithFormat {
   id: number;
@@ -24,6 +25,8 @@ export default function PhotoSelection() {
 
   const [selectedPhotos, setSelectedPhotos] = useState<Map<number, PhotoWithFormat>>(new Map());
   const [processing, setProcessing] = useState(false);
+  const [previewPhoto, setPreviewPhoto] = useState<any | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const toggleSelection = async (photo: any) => {
     const newSelected = new Map(selectedPhotos);
@@ -45,6 +48,16 @@ export default function PhotoSelection() {
       selected: isSelected ? 0 : 1,
       format: isSelected ? "10x15" : "10x15",
     });
+  };
+
+  const openPreview = (photo: any) => {
+    setPreviewPhoto(photo);
+    setShowPreview(true);
+  };
+
+  const closePreview = () => {
+    setShowPreview(false);
+    setPreviewPhoto(null);
   };
 
   const updatePhotoFormat = async (photoId: number, format: "10x15" | "15x21") => {
@@ -199,6 +212,20 @@ export default function PhotoSelection() {
                           <Circle className="text-gray-400" size={20} />
                         )}
                       </div>
+
+                      {/* Botão de pré-visualização */}
+                      {isSelected && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openPreview(photo);
+                          }}
+                          className="absolute left-2 top-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all"
+                          title="Pré-visualizar corte"
+                        >
+                          <Eye className="text-primary" size={16} />
+                        </button>
+                      )}
                     </div>
 
                     {isSelected && (
@@ -293,6 +320,19 @@ export default function PhotoSelection() {
           {processing ? "Processando..." : `Continuar (${selectedPhotos.size}) →`}
         </Button>
       </div>
+
+      {/* Modal de pré-visualização */}
+      {previewPhoto && (
+        <PhotoCropPreview
+          photoUrl={previewPhoto.fileUrl}
+          photoName={previewPhoto.fileName}
+          isOpen={showPreview}
+          onClose={closePreview}
+          onSelectFormat={(format) => {
+            updatePhotoFormat(previewPhoto.id, format);
+          }}
+        />
+      )}
     </div>
   );
 }
